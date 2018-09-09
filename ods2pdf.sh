@@ -1,17 +1,14 @@
 #!/bin/bash
 
-file=${1:-Banderole}
-front=.$file.pdf.front.pdf
-back=.$file.pdf.back.pdf
+input=${1:-Banderole}
+front=.$input.front.pdf
+back=.$input.back.pdf
 
-rm -f $file.pdf
+libreoffice --convert-to csv $input.ods
+libreoffice --convert-to pdf $input.ods
+while [ ! -f $input.pdf ]; do sleep 0.1; done
 
-libreoffice --convert-to pdf $file.ods
-while [ ! -f $file.pdf ]; do sleep 0.1; done
-
-count=$(pdfgrep -om1 \
-      '[0-9][0-9] [0-9][0-9] [0-9][0-9] [0-9][0-9][ ]+([0-9][0-9])' $file.pdf)
-count=${count:(-2)}
+count=$(head -n 5 $input.csv | tail -1 | cut -d, -f11 -)
 
 for ((i=1;i<=$count;i+=9)); do
   max=$(($i+8))
@@ -27,17 +24,19 @@ for ((i=1;i<=$count;i+=9)); do
 done
 
 echo "assemble front"
-pdftk $file.pdf cat 7-$(($count+6)) output - | \
-pdftk - background $file.pdf output - | \
-pdftk A=- B=$file.pdf cat $cat_front output - | \
+pdftk $input.pdf cat 7-$((count+6)) output - | \
+pdftk - background $input.pdf output - | \
+pdftk A=- B=$input.pdf cat $cat_front output - | \
 pdfjam -q --nup 1x11 --outfile $front
 
 echo "assemble back"
-pdftk $file.pdf cat $cat_back output - | \
+pdftk $input.pdf cat $cat_back output - | \
 pdfjam -q --nup 1x11 --outfile $back
 
-echo "shuffle pdf"
-pdftk A=$front B=$back shuffle A B output $file.pdf
+output="./output/"$(head -n 2 $input.csv | tail -1 | cut -d, -f4 -)
 
-rm -f $front $back
-xdg-open $file.pdf
+echo "shuffle pdf"
+pdftk A=$front B=$back shuffle A B output $output.pdf
+
+rm -f $input.pdf $input.csv $front $back
+xdg-open $output.pdf
