@@ -42,7 +42,7 @@ pdftk $input.pdf cat $cat_back output - | \
 pdfjam -q --nup 1x11 --outfile $back
 
 echo "shuffle pdf"
-pdftk A=$front B=$back shuffle A B output $output.pdf
+pdftk A=$front B=$back shuffle A B output "$output.pdf"
 
 rm -f $input.pdf $input.csv $front $back
-xdg-open $output.pdf
+xdg-open "$output.pdf"
