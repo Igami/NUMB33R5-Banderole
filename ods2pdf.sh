@@ -16,7 +16,7 @@ output+=$(head -n 6 $input.csv | tail -1 | cut -d, -f8 -)
 output+="_"
 output+=$(head -n 6 $input.csv | tail -1 | cut -d, -f9 -)
 output+="_"
-output+=$(head -n 3 $input.csv | tail -1 | cut -d, -f2 -)
+output+=$(head -n 2 $input.csv | tail -1 | cut -d, -f4 -)
 
 for ((i=1;i<=$count;i+=9)); do
   max=$(($i+8))
