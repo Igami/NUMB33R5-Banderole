@@ -1,24 +1,26 @@
 #!/bin/bash
 
-input=${1:-Banderole}
-front=.$input.front.pdf
-back=.$input.back.pdf
+input=${1:-Banderole.ods}
+file=${input##*/}
+file=${file%.ods}
+front=.$file.front.pdf
+back=.$file.back.pdf
 
-libreoffice --convert-to csv --infilter='CSV:44,,76,1,,1031,true' $input.ods
-libreoffice --convert-to pdf $input.ods
-while [ ! -f $input.pdf ]; do sleep 0.1; done
+libreoffice --convert-to csv --outdir . --infilter='CSV:44,,76,1,,1031,true' $input
+libreoffice --convert-to pdf --outdir . $input
+while [ ! -f $file.pdf ]; do sleep 0.1; done
 
-count=$(head -n 6 $input.csv | tail -1 | cut -d, -f11 -)
+count=${3:-$(head -n 6 $file.csv | tail -1 | cut -d, -f11 -)}
 output="./output/"
-output+=$(head -n 6 $input.csv | tail -1 | cut -d, -f6 -)
-output+=$(head -n 6 $input.csv | tail -1 | cut -d, -f7 -)
-output+=$(head -n 6 $input.csv | tail -1 | cut -d, -f8 -)
+output+=$(head -n 6 $file.csv | tail -1 | cut -d, -f6 -)
+output+=$(head -n 6 $file.csv | tail -1 | cut -d, -f7 -)
+output+=$(head -n 6 $file.csv | tail -1 | cut -d, -f8 -)
 output+="_"
-output+=$(head -n 6 $input.csv | tail -1 | cut -d, -f9 -)
+output+=$(head -n 6 $file.csv | tail -1 | cut -d, -f9 -)
 output+="_"
-output+=$(head -n 2 $input.csv | tail -1 | cut -d, -f4 -)
+output+=$(head -n 2 $file.csv | tail -1 | cut -d, -f4 - | sed 's/ /_/g')
 
-for ((i=1;i<=$count;i+=9)); do
+for ((i=${2:-1};i<=$count;i+=9)); do
   max=$(($i+8))
   blanks=1
   if ((max > count)); then
@@ -27,22 +29,22 @@ for ((i=1;i<=$count;i+=9)); do
   fi
 
   cat_front+="B4 A$i-$max B4 "
-  cat_back+="4 $(printf '3 %.0s' $(seq $((10-blanks)))) \
-            $(printf '6 %.0s' $(seq $blanks))"
+  cat_back+="4 $(printf '3 %.0s' $(seq $((10-blanks)))) $(printf '6 %.0s' $(seq $blanks))"
 done
 
 echo "assemble front"
-pdftk $input.pdf cat 7-$((count+6)) output - | \
-pdftk - background $input.pdf output - | \
-pdftk A=- B=$input.pdf cat $cat_front output - | \
+pdftk $file.pdf cat 7-$((count+6)) output - | \
+pdftk - background $file.pdf output - | \
+pdftk A=- B=$file.pdf cat $cat_front output - | \
 pdfjam -q --nup 1x11 --outfile $front
 
 echo "assemble back"
-pdftk $input.pdf cat $cat_back output - | \
+pdftk $file.pdf cat $cat_back output - | \
 pdfjam -q --nup 1x11 --outfile $back
 
 echo "shuffle pdf"
-pdftk A=$front B=$back shuffle A B output "$output.pdf"
+pdftk A=$front B=$back shuffle A B output $output.pdf
 
-rm -f $input.pdf $input.csv $front $back
-xdg-open "$output.pdf"
+cp $input $output.ods &> /dev/null
+rm -f $file.pdf $file.csv $front $back
+xdg-open $output.pdf
