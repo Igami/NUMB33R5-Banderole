@@ -10,17 +10,11 @@ libreoffice --convert-to csv --outdir . --infilter='CSV:44,,76,1,,1031,true' $in
 libreoffice --convert-to pdf --outdir . $input
 while [ ! -f $file.pdf ]; do sleep 0.1; done
 
-count=${3:-$(head -n 6 $file.csv | tail -1 | cut -d, -f11 -)}
-output="./output/"
-output+=$(head -n 6 $file.csv | tail -1 | cut -d, -f6 -)
-output+=$(head -n 6 $file.csv | tail -1 | cut -d, -f7 -)
-output+=$(head -n 6 $file.csv | tail -1 | cut -d, -f8 -)
-output+="_"
-output+=$(head -n 6 $file.csv | tail -1 | cut -d, -f9 -)
-output+="_"
-output+=$(head -n 2 $file.csv | tail -1 | cut -d, -f4 - | sed 's/ /_/g')
+output="./output/$(head -n 1 $file.csv | tail -1 | cut -d, -f1 -)"
+start=$(head -n 1 $file.csv | tail -1 | cut -d, -f114 -)
+count=$(head -n 1 $file.csv | tail -1 | cut -d, -f122 -)
 
-for ((i=${2:-1};i<=$count;i+=9)); do
+for ((i=$start;i<=$count;i+=9)); do
   max=$(($i+8))
   blanks=1
   if ((max > count)); then
