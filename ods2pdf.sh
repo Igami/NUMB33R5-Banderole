@@ -6,7 +6,8 @@ file=${file%.ods}
 front=.$file.front.pdf
 back=.$file.back.pdf
 
-libreoffice --convert-to csv --outdir . --infilter='CSV:44,,76,1,,1031,true' $input
+# libreoffice --convert-to csv --outdir . --infilter='CSV:44,,76,1,,1031,true' $input
+libreoffice --convert-to csv --outdir . $input
 libreoffice --convert-to pdf --outdir . $input
 while [ ! -f $file.pdf ]; do sleep 0.1; done
 
@@ -22,8 +23,8 @@ for ((i=$start;i<=$count;i+=9)); do
     max=$count
   fi
 
-  cat_front+="B4 A$i-$max B4 "
-  cat_back+="4 $(printf '3 %.0s' $(seq $((10-blanks)))) $(printf '6 %.0s' $(seq $blanks))"
+  cat_front+="B2 A$i-$max B2 "
+  cat_back+="5 $(printf '3 %.0s' $(seq $((10-blanks))))$(printf '5 %.0s' $(seq $blanks))"
 done
 
 echo "assemble front"
