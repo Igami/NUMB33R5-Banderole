@@ -41,5 +41,6 @@ echo "shuffle pdf"
 pdftk A=$front B=$back shuffle A B output $output.pdf
 
 cp $input $output.ods &> /dev/null
+#cp $front $output.ods &> /dev/null
 rm -f $file.pdf $file.csv $front $back
 xdg-open $output.pdf
