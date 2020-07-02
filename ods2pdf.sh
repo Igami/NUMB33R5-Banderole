@@ -31,16 +31,16 @@ echo "assemble front"
 pdftk $file.pdf cat 7-$((count+6)) output - | \
 pdftk - background $file.pdf output - | \
 pdftk A=- B=$file.pdf cat $cat_front output - | \
-pdfjam -q --nup 1x11 --outfile $front
+pdfjam -q --nup 1x11 --outfile $output.pdf
 
-echo "assemble back"
-pdftk $file.pdf cat $cat_back output - | \
-pdfjam -q --nup 1x11 --outfile $back
+# echo "assemble back"
+# pdftk $file.pdf cat $cat_back output - | \
+# pdfjam -q --nup 1x11 --outfile $back
 
-echo "shuffle pdf"
-pdftk A=$front B=$back shuffle A B output $output.pdf
+# echo "shuffle pdf"
+# pdftk A=$front B=$back shuffle A B output $output.pdf
 
 cp $input $output.ods &> /dev/null
 #cp $front $output.ods &> /dev/null
-rm -f $file.pdf $file.csv $front $back
+rm -f $file.pdf $file.csv $front #$back
 xdg-open $output.pdf
